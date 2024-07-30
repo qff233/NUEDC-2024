@@ -7,13 +7,15 @@ mod tasks;
 
 use component::coil::Coil;
 use component::hall::Hall;
+use component::tof050f::Tof050f;
 use defmt::*;
 
 use embassy_executor::Spawner;
-use embassy_stm32::adc;
 use embassy_stm32::time::khz;
 use embassy_stm32::timer::qei::{Qei, QeiPin};
 use embassy_stm32::timer::simple_pwm::{PwmPin, SimplePwm};
+use embassy_stm32::usart::Uart;
+use embassy_stm32::{adc, usart};
 use embassy_stm32::{gpio, i2c};
 use embassy_stm32::{time::mhz, Config};
 use embassy_time::Timer;
@@ -57,9 +59,12 @@ async fn main(spawner: Spawner) {
             i2c::I2c::new_blocking(p.I2C2, p.PB10, p.PB3, khz(400), i2c_config),
         ))
         .unwrap();
+
+    let usart_config = usart::Config::default();
     spawner
         .spawn(tasks::control::control_task(
             Hall::new(adc::Adc::new(p.ADC1), p.PA0, p.PA1),
+            Tof050f::new(Uart::new_blocking(p.USART2, p.PA3, p.PA2, usart_config).unwrap()),
             Coil::new(SimplePwm::new(
                 p.TIM1,
                 Some(PwmPin::new_ch1(p.PA8, gpio::OutputType::PushPull)),
@@ -67,7 +72,7 @@ async fn main(spawner: Spawner) {
                 Some(PwmPin::new_ch3(p.PA10, gpio::OutputType::PushPull)),
                 Some(PwmPin::new_ch4(p.PA11, gpio::OutputType::PushPull)),
                 khz(20),
-                embassy_stm32::timer::low_level::CountingMode::CenterAlignedDownInterrupts,
+                embassy_stm32::timer::low_level::CountingMode::EdgeAlignedDown,
             )),
         ))
         .unwrap();

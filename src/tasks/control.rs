@@ -4,11 +4,13 @@ use embassy_time::Timer;
 use crate::component::coil::Coil;
 use crate::component::control::Control;
 use crate::component::hall::Hall;
+use crate::component::tof050f::Tof050f;
 use crate::pid::Pid;
 
 #[embassy_executor::task]
 pub async fn control_task(
     hall: Hall<'static, peripherals::ADC1, peripherals::PA0, peripherals::PA1>,
+    tof050f: Tof050f<'static>,
     coil: Coil<'static, peripherals::TIM1>,
 ) {
     let balance_p = 1.0;
@@ -20,6 +22,7 @@ pub async fn control_task(
     let balance_integral_limit = 50.0;
     let mut control = Control::new(
         hall,
+        tof050f,
         coil,
         Pid::new(
             balance_p,

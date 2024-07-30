@@ -142,13 +142,13 @@ impl<'a> Interface<'a> {
                     if delta_count.is_positive() {
                         delta_count = 65535 - delta_count
                     } else {
-                        delta_count = 65535 + delta_count
+                        delta_count += 65535
                     }
                 }
 
                 let delta = delta_count as f32 / 4.0 * 0.01;
                 self.target_height += delta;
-                debug!("delta_count:{}  height:{}", delta_count, self.target_height);
+                // debug!("delta_count:{}  height:{}", delta_count, self.target_height);
 
                 // 编辑提示
                 self.oled.clear();

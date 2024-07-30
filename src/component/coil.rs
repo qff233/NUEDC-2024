@@ -1,7 +1,4 @@
-use embassy_stm32::{
-    pac::i2c::vals::Duty,
-    timer::{simple_pwm::SimplePwm, Channel, GeneralInstance4Channel},
-};
+use embassy_stm32::timer::{simple_pwm::SimplePwm, Channel, GeneralInstance4Channel};
 
 pub struct Coil<'a, Timer: GeneralInstance4Channel> {
     pwm: SimplePwm<'a, Timer>,
@@ -9,8 +6,12 @@ pub struct Coil<'a, Timer: GeneralInstance4Channel> {
 }
 
 impl<'a, Timer: GeneralInstance4Channel> Coil<'a, Timer> {
-    pub fn new(pwm: SimplePwm<'a, Timer>) -> Self {
+    pub fn new(mut pwm: SimplePwm<'a, Timer>) -> Self {
         let max = pwm.get_max_duty();
+        pwm.enable(Channel::Ch1);
+        pwm.enable(Channel::Ch2);
+        pwm.enable(Channel::Ch3);
+        pwm.enable(Channel::Ch4);
         Self {
             pwm,
             duty: [max / 2; 4],
