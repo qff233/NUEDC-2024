@@ -1,4 +1,3 @@
-use defmt::debug;
 use embassy_stm32::{mode::Blocking, usart::Uart};
 
 pub struct Tof050f<'a> {

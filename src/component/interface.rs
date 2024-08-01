@@ -1,4 +1,3 @@
-use defmt::debug;
 use embassy_stm32::mode::Blocking;
 use embassy_stm32::peripherals;
 use embassy_stm32::timer::qei::Qei;
@@ -158,6 +157,7 @@ impl<'a> Interface<'a> {
             State::None(once) => {
                 if *once {
                     // 编辑提示
+                    // debug!("flush oled!");
                     self.oled.clear();
                     Self::draw_height(&mut self.oled, self.target_height, false);
                     self.oled.flush().unwrap();

@@ -1,5 +1,6 @@
 use defmt::debug;
 use embassy_stm32::adc::{self, Adc, AdcChannel};
+use embassy_time::Duration;
 
 pub struct Hall<
     'a,
@@ -35,25 +36,29 @@ impl<
         mut x_hall_pin: XChannel,
         mut y_hall_pin: YChannel,
     ) -> Self {
-        let mut x_count: f32 = 0.0;
-        let mut y_count: f32 = 0.0;
-
-        for _ in 0..1000 {
-            let (x, y) = Self::get_raw(&mut adc, &mut x_hall_pin, &mut y_hall_pin);
-            x_count += x;
-            y_count += y;
-        }
-
-        let x_offset = x_count / 1000.0;
-        let y_offset = y_count / 1000.0;
-        debug!("x,y offset: {},{}", x_offset, y_offset);
-
         Self {
             adc,
             x_hall_pin,
             y_hall_pin,
-            offset: (x_offset, y_offset),
+            offset: (0.0, 0.0),
         }
+    }
+
+    pub fn calibi(&mut self) {
+        let mut x_count: f32 = 0.0;
+        let mut y_count: f32 = 0.0;
+
+        for _ in 0..500 {
+            let (x, y) = Self::get_raw(&mut self.adc, &mut self.x_hall_pin, &mut self.y_hall_pin);
+            x_count += x;
+            y_count += y;
+            embassy_time::block_for(Duration::from_millis(1));
+        }
+
+        let x_offset = x_count / 500.0;
+        let y_offset = y_count / 500.0;
+        debug!("x,y offset: {},{}", x_offset, y_offset);
+        self.offset = (x_offset, y_offset);
     }
 
     pub fn get_value(&mut self) -> (f32, f32) {

@@ -40,6 +40,9 @@ embassy-time = { git = "https://github.com/embassy-rs/embassy", features = [
 embassy-time-driver = { git = "https://github.com/embassy-rs/embassy" }
 
 embassy-futures = { git = "https://github.com/embassy-rs/embassy" }
+embassy-usb = { git = "https://github.com/embassy-rs/embassy", features = [
+    "defmt",
+] }
 
 defmt = "0.3"
 defmt-rtt = "0.4"
@@ -53,3 +56,4 @@ static_cell = "2.0"
 ssd1306-i2c = "0.1.5"
 embedded-graphics = "0.8.1"
 format_no_std = "1.2"
+micromath = "2.1.0"

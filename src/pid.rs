@@ -7,6 +7,7 @@ pub struct Pid {
     pub output_ramp: f32,
     pub output_limit: f32,
     pub integral_limit: f32,
+    pub diff_limit: f32,
     pub last_output: f32,
     pub integral: f32,
     pub last_error: f32,
@@ -22,6 +23,7 @@ impl Pid {
         output_ramp: f32,
         output_limit: f32,
         integral_limit: f32,
+        diff_limit: f32,
     ) -> Self {
         Self {
             p,
@@ -29,6 +31,7 @@ impl Pid {
             d,
             time_interval,
             output_limit,
+            diff_limit,
             output_ramp,
             integral_limit,
             last_error: 0.,
@@ -48,7 +51,8 @@ impl Pid {
 
         // debug!("{}", self.integral);
 
-        let d_term = self.d * (error - self.last_error) / dt;
+        let mut d_term = self.d * (error - self.last_error) / dt;
+        d_term = d_term.min(self.diff_limit).max(-self.diff_limit);
         let mut output = self.p * error + self.integral + d_term;
 
         if self.output_ramp > 0. {
